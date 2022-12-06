@@ -1,0 +1,270 @@
+'''
+There are 108 cards in a Uno deck.
+There are four suits, Red, Green, Yellow and Blue, each consisting of
+one 0 card, two 1 cards, two 2s, 3s, 4s, 5s, 6s, 7s, 8s and 9s;
+two Draw Two cards; two Skip cards; and two Reverse cards.
+In addition there are four Wild cards and four Wild Draw Four cards.
+
+'''
+
+'''
+Generate an UNO deck of 108 cards
+Parameters: none
+return values: deck->list
+
+'''
+
+import random
+def BuildDeck():  
+# like: " 'colour,value' : 'red,4';'blue,5';'green,6' "
+  deck = []
+  colours = ["Red","Green","Yellow","Blue"]
+#   print(colours)
+  values =[0,1,2,3,4,5,6,7,8,9,"Draw Two card","Skip","Reverse"]
+  wilds =['Wild card', 'Wild Draw Four cards']
+  for colour in colours:
+      for value in values:
+          cardValue = "{} {}".format(colour,value)
+          deck.append(cardValue)
+          if value !=0:
+             deck.append(cardValue)
+
+  for i in range(4): 
+      deck.append(wilds[0])     
+  for i in range(4): 
+      deck.append(wilds[1])          
+ 
+#   print(deck)
+#   print("")
+  return deck
+
+'''
+Shuffles a list of items passed into it 
+Parameters: deck -> list
+return value: deck -> list
+'''
+def halfShuffleDeck(deck):
+    firstHalf = []
+    secondHalf = []
+    shufflefdeck = []
+                                        
+    for i in range(len(deck)):
+        if i<int(((len(deck))/2)) :
+           firstHalf.append(deck[i])
+        else :
+           secondHalf.append(deck[i])   
+                                           
+    shuffleDeckbyHalf = []
+    halflength = int((len(deck))/2)                                         
+
+    for i in range(halflength):
+        shuffleDeckbyHalf.append(secondHalf[i])
+        shuffleDeckbyHalf.append(firstHalf[i])
+    if len(firstHalf) != len(secondHalf) :
+        shuffleDeckbyHalf.append(secondHalf[len(secondHalf)-1])
+                                        
+    return shuffleDeckbyHalf
+
+def randomShuffleDeck(deck):
+    randomlyShuffleDeck = deck
+    for cardPosition in range(len(randomlyShuffleDeck)):
+        randomPosition = random.randint(0,107) 
+        randomlyShuffleDeck[randomPosition] , randomlyShuffleDeck[cardPosition] = randomlyShuffleDeck[cardPosition] , randomlyShuffleDeck[randomPosition]
+    return randomlyShuffleDeck
+
+def ultimateShuffledeck(deck) :
+    usd = halfShuffleDeck(randomShuffleDeck(deck))
+    return usd
+
+freshUnoDeck = BuildDeck()
+UnoDeck = BuildDeck()
+halfshuffleUnoDeck = halfShuffleDeck(UnoDeck)
+# print("")
+# print(halfshuffleUnoDeck)
+# print("")
+# halfshuffleUnoDeck = halfShuffleDeck(halfshuffleUnoDeck)
+# print(halfshuffleUnoDeck)
+# print("")
+# halfshuffleUnoDeck = halfShuffleDeck(halfshuffleUnoDeck)
+# print(halfshuffleUnoDeck)
+# print("")
+
+randomshuffleUnoDeck = randomShuffleDeck(UnoDeck)
+ultimateShuffleUnodeck = ultimateShuffledeck(UnoDeck) 
+
+# print("")
+# print(UnoDeck)
+print("")
+
+'''
+draw card function that draws a specfic number of cards off the top of the deck
+parameter: numCards -> integer
+Return : cardsDrawn -> list
+'''
+
+def drawCards(numCards):
+    cardsDrawn = []
+    
+    for x in range(numCards):
+        cardsDrawn.append(UnoDeck.pop(0))
+    return cardsDrawn    
+
+'''
+print formated list of players's hand 
+Parameter : player->list
+Return : none 
+'''
+
+def showHands(player,plyerHand):
+    print("              player {}".format(player+1))
+    print("")
+    print("your hand")
+    print("---------------------------")
+    y = 1
+    for card in plyerHand:
+        print("{}) {}".format(y,card))
+        y+=1
+    print("")
+
+'''
+check wether a player is able to play a card , or not
+Parameters : colour->string , value->string , playerHand->list
+return : boolean 
+
+'''
+
+def canPlay(colour, value, playerHand):
+    for card in playerHand:
+            if "wild" in card:
+                return True
+            elif colour in card or value in card :
+                return True    
+    return False    
+
+
+discards = []
+colours = ["Red","Green","Yellow","Blue"]
+players = []
+numPlayers = int(input("how many players u want ? : "))
+print("")
+print("")
+while numPlayers<2 or numPlayers>4 :
+    numPlayers = int(input("invalid option choose between 2 to 4 , How many players do u want ? : "))
+
+for player in range(numPlayers):
+    players.append(drawCards(5))
+    playersDeck = players.copy()
+
+print("")
+print("card drawn are :- ",players)
+print("")
+
+for lists in range(len(playersDeck)) :
+    if lists == 0 :
+        print("")
+        print("The cars of each player are :- ")
+        print("")
+    yoyo = playersDeck.pop(0)
+    print("Player {} ) {} ".format(lists+1,yoyo))
+    print("")
+    print("")
+
+
+
+
+playerTurn = 0
+playDirection = 1
+playing = True
+discards.append(UnoDeck.pop(0))
+splitCard = discards[0].split(' ',1)
+currentColour = splitCard[0]
+if currentColour != "wild" :
+   cardVal = splitCard[1] 
+else :
+    cardVal = "Any"
+
+
+
+while playing:
+    showHands(playerTurn, players[playerTurn])
+    print("card on top of discard pile: {}".format(discards[-1]))   
+    print("")
+    if canPlay( currentColour, cardVal, players[playerTurn]) :
+        cardChosen = int(input("which card do u want to play ? : "))
+        print("") 
+        while not canPlay( currentColour, cardVal ,[players[playerTurn][cardChosen-1]]) :
+                cardChosen = int(input("Not a valid card , which card do u want to play ?"))
+        print("")        
+        print("You played {}".format(players[playerTurn][cardChosen-1]))   
+        print("")     
+        discards.append(players[playerTurn].pop(cardChosen-1))
+        
+        #check if player won 
+
+        if len(players[playerTurn]) ==0 :
+            playing = False
+            winner = "player {}".format(playerTurn+1)
+
+        else :
+
+          #check for special card 
+
+          splitCard = discards[-1].split(' ',1)
+          currentColour = splitCard[0]
+          if len(splitCard) == 1 :
+           cardVal = "Any"
+          else :
+           cardVal = splitCard[1]     
+          if currentColour == "wild" :
+              print("")               
+              for x in range(len(colours)) :
+                  print("{}) {}".format(x+1,colours[x]))
+              newColour = int(input("what colour would u like to choose ?  : "))
+              print("")
+              while newColour<1 or newColour>4 :
+               newColour = int(input("Invalid option , what colour would u like to choose , choose it from 1 to 4 !!" ))
+               currentColour = colours[newColour-1]
+
+          if cardVal == "Reverse" :
+             playDirection = playDirection* -1
+
+          elif cardVal == "Skip" :
+             playerTurn += playDirection
+             if playerTurn >= numPlayers :
+                 playerTurn = 0
+             elif playerTurn < 0 :
+                 playerTurn = numPlayers -1
+
+          elif cardVal == "Draw Two card" :
+               playerDraw = playerTurn + playDirection   
+               if playerTurn >= numPlayers :
+                 playerTurn = 0
+               elif playerTurn < 0 :
+                 playerTurn = numPlayers -1
+               players[playerTurn].extend(drawCards(2))
+
+          elif cardVal == "Draw Four cards" :
+               playerDraw = playerTurn + playDirection   
+               if playerTurn >= numPlayers :
+                 playerTurn = 0
+               elif playerTurn < 0 :
+                 playerTurn = numPlayers -1
+               players[playerTurn].extend(drawCards(4))
+
+          print("")               
+
+    else:
+        print("You cant play , u have to draw a card ")   
+        players[playerTurn].extend(drawCards(1))  
+    print("")               
+        
+  
+    playerTurn += playDirection
+    if playerTurn >= numPlayers :
+        playerTurn = 0 
+    elif playerTurn < 0 :
+        playerTurn = numPlayers -1    
+
+print("-------------------------------GAME OVER---------------------------------")
+print("")
+print("{} is the Winner".format(winner))
